@@ -1,0 +1,8 @@
+{
+  "name": "firestore",
+  "version": "1.0.0",
+  "license": "MIT",
+  "dependencies": {
+    "@google-cloud/firestore": "^2.2.0"
+  }
+}

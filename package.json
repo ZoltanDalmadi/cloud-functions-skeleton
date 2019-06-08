@@ -1,0 +1,23 @@
+{
+  "name": "cloud-functions-skeleton",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "deploy": "node util/deploy.js",
+    "test": "jest",
+    "start": "nodemon --"
+  },
+  "private": true,
+  "workspaces": [
+    "functions/*"
+  ],
+  "devDependencies": {
+    "dotenv": "^8.0.0",
+    "express": "^4.17.1",
+    "fs-extra": "^8.0.1",
+    "jest": "^24.7.1",
+    "kleur": "^3.0.3",
+    "nodemon": "^1.19.1"
+  }
+}
