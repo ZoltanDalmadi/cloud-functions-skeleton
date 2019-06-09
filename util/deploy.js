@@ -5,7 +5,7 @@ const cp = require('child_process');
 const funcName = process.argv[2];
 
 if (!funcName) {
-  console.err("please provide your function's name!");
+  console.error("please provide your function's name!");
   process.exit(1);
 }
 
@@ -14,7 +14,7 @@ const distDir = path.join(funcDir, 'dist');
 
 const readFiles = funcDir => fs.readdirSync(funcDir).map(file => path.join(funcDir, file))
 const skipUnnecessary = files => files
-  .filter(file => !file.endsWith('package.json') || !file.endsWith('spec.js') || file !== ('.gcloud.json'));
+  .filter(file => !file.endsWith('package.json') && !file.endsWith('spec.js') && !file.endsWith('.gcloud.json'));
 
 const copyFiles = (filesToCopy, dest) => {
   filesToCopy.forEach(file => {
@@ -50,26 +50,38 @@ const deployArgs = (funcDir, funcName) => {
     runtime = 'nodejs8',
     region = 'europe-west1',
     memory = '256MB',
-    trigger = 'http'
+    trigger = 'http',
+    triggerTopic
   } = JSON.parse(fs.existsSync(configFile) ? fs.readFileSync(configFile, 'utf8') : '{}');
 
-  return [
+  const args = [
     'functions',
     'deploy', funcName,
     '--runtime', runtime,
     '--region', region,
     '--memory', memory,
-    `--trigger-${trigger}`
+    `--trigger-${trigger}`,
   ];
+
+  if (trigger === 'topic') {
+    if (triggerTopic) {
+      args.push(triggerTopic);
+    } else {
+      console.error(".gcloud.json is missing a 'triggerTopic' field!");
+      process.exit(1);
+    }
+  }
+
+  return args;
 };
 
+const args = deployArgs(funcDir, funcName);
 const filesToCopy = skipUnnecessary(readFiles(funcDir));
 
 ensureDistDir(distDir);
 copyFiles(filesToCopy, distDir);
 stripPackage(funcDir, distDir);
 
-const args = deployArgs(funcDir, funcName);
 const instance = cp.spawn('gcloud', args, { cwd: distDir, stdio: 'inherit' });
 
 instance.on('exit', () => fs.removeSync(distDir));

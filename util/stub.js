@@ -5,7 +5,7 @@ const { magenta, yellow } = require("kleur");
 const functionName = process.argv[2];
 
 if (!functionName) {
-  console.err("please provide your function's name!");
+  console.error("please provide your function's name!");
   process.exit(1);
 }
 
